@@ -22,26 +22,29 @@ class Ioc {
 
     static class DemoInvocationHandler implements InvocationHandler {
         private final TestLogging testLogging;
+        private Set<String> methodsWithAnnotations = new HashSet<>();
 
         DemoInvocationHandler(TestLogging testLogging) {
             this.testLogging = testLogging;
+            selectMethodsWithAnnotations();
         }
 
         @Override
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 
-            Set<String> methodsWithAnnotations = new HashSet<>();
-
-            for (Method methodSearchAnnotation : TestLogging.class.getMethods()) {
-                if (methodSearchAnnotation.isAnnotationPresent(Log.class)) {
-                    methodsWithAnnotations.add(methodSearchAnnotation.getName() + Arrays.toString(methodSearchAnnotation.getParameters()));
-                }
-            }
-
             if (methodsWithAnnotations.contains(method.getName() + Arrays.toString(method.getParameters()))) {
                 System.out.println("executed method: " + method.getName() + ", param(s): " + Arrays.toString(args));
             }
             return method.invoke(testLogging, args);
+        }
+
+        public void selectMethodsWithAnnotations(){
+
+            for (Method method : TestLoggingImpl.class.getDeclaredMethods()) {
+                if (method.isAnnotationPresent(Log.class)) {
+                    methodsWithAnnotations.add(method.getName() + Arrays.toString(method.getParameters()));
+                }
+            }
         }
 
         @Override
