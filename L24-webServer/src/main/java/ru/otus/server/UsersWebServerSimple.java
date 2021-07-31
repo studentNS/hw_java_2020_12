@@ -13,8 +13,6 @@ import ru.otus.helpers.FileSystemHelper;
 import ru.otus.services.TemplateProcessor;
 import ru.otus.servlet.ClientsApiServlet;
 import ru.otus.servlet.ClientsServlet;
-import ru.otus.servlet.UsersApiServlet;
-import ru.otus.servlet.UsersServlet;
 
 
 public class UsersWebServerSimple implements UsersWebServer {

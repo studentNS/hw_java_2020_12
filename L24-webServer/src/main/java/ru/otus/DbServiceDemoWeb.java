@@ -47,36 +47,10 @@ public class DbServiceDemoWeb {
     private static final String TEMPLATES_DIR = "/templates/";
 
     public static void main(String[] args) throws Exception {
-        var configuration = new Configuration().configure(HIBERNATE_CFG_FILE);
 
-        var dbUrl = configuration.getProperty("hibernate.connection.url");
-        var dbUserName = configuration.getProperty("hibernate.connection.username");
-        var dbPassword = configuration.getProperty("hibernate.connection.password");
-
-        new MigrationsExecutorFlyway(dbUrl, dbUserName, dbPassword).executeMigrations();
-
-        var sessionFactory = HibernateUtils.buildSessionFactory(configuration, Client.class, AddressDataSet.class, PhoneDataSet.class);
-
-        var transactionManager = new TransactionManagerHibernate(sessionFactory);
-///
         var clientTemplate = new DataTemplateHibernate<>(Client.class);
-///
-        var dbServiceClient = new DbServiceClientImpl(transactionManager, clientTemplate);
-        var clientFirstData = new Client("dbServiceFirst");
-        clientFirstData.setAddress(new AddressDataSet("First street"));
-        var phones1 = new ArrayList<PhoneDataSet>();
-        phones1.add(new PhoneDataSet("Phone 1",clientFirstData));
-        phones1.add(new PhoneDataSet("Phone 2",clientFirstData));
-        clientFirstData.setPhone(phones1);
-        dbServiceClient.saveClient(clientFirstData);
 
-        var clientSecondData = new Client("dbServiceSecond");
-        clientSecondData.setAddress(new AddressDataSet("Second street"));
-        var phones2 = new ArrayList<PhoneDataSet>();
-        phones2.add(new PhoneDataSet("Phone 3",clientSecondData));
-        phones2.add(new PhoneDataSet("Phone 4",clientSecondData));
-        clientSecondData.setPhone(phones2);
-        dbServiceClient.saveClient(clientSecondData);
+        var dbServiceClient = new DbServiceClientImpl(hibernateConnection(), clientTemplate);
 
         UserDao userDao = new InMemoryUserDao();
         Gson gson = new GsonBuilder().serializeNulls().setPrettyPrinting().create();
@@ -88,5 +62,19 @@ public class DbServiceDemoWeb {
 
         usersWebServer.start();
         usersWebServer.join();
+    }
+
+    private static TransactionManagerHibernate hibernateConnection(){
+        var configuration = new Configuration().configure(HIBERNATE_CFG_FILE);
+
+        var dbUrl = configuration.getProperty("hibernate.connection.url");
+        var dbUserName = configuration.getProperty("hibernate.connection.username");
+        var dbPassword = configuration.getProperty("hibernate.connection.password");
+
+        new MigrationsExecutorFlyway(dbUrl, dbUserName, dbPassword).executeMigrations();
+        var sessionFactory = HibernateUtils.buildSessionFactory(configuration, Client.class, AddressDataSet.class, PhoneDataSet.class);
+        var transactionManager = new TransactionManagerHibernate(sessionFactory);
+
+        return transactionManager;
     }
 }
