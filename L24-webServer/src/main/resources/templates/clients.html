@@ -1,0 +1,50 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Клиенты</title>
+    <script>
+        function getUserById() {
+            const userIdTextBox = document.getElementById('userIdTextBox');
+            const userDataContainer = document.getElementById('userDataContainer');
+            const id = userIdTextBox.value;
+            //fetch('api/user?id=' + id)
+            fetch('api/client/' + id)
+                .then(response => response.json())
+                .then(client => userDataContainer.innerHTML = JSON.stringify(client))
+                .catch(err => userDataContainer.innerHTML = 'Error!!');
+        }
+    </script>
+</head>
+<body>
+
+<h2>Создать клиента</h2>
+<form action="clients" method="post">
+    <input type="text" id = "addUserName" value="" placeholder="Введите имя" name="name"><br>
+    <input type="text" id = "addUserAddress" value="" placeholder="Введите адрес" name="address"><br>
+    <input type="text" id = "addUserPhone" value="" placeholder="Введите телефон" name="phones">
+    <button type="submit">Создать клиента</button>
+</form>
+
+<h4>Получить клиента по id</h4>
+<input type="text" id = "userIdTextBox" value="" placeholder="Введите id">
+<button onclick="getUserById()">Получить клиента</button>
+<pre id = "userDataContainer"></pre>
+
+<h4>Список всех клиентов</h4>
+<table style="width: 400px">
+    <thead>
+    <tr>
+        <td style="width: 50px">Id</td>
+        <td style="width: 150px">Имя</td>
+    </tr>
+    </thead>
+    <tbody>
+    <#list clients as client>
+    <tr>
+        <td>${client.id}</td>
+        <td>${client.name}</td>
+    </tr>
+    </#list>
+    </tbody>
+</table>
+</body>
+</html>
